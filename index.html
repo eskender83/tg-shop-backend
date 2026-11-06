@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Автозапчастини Mini App</title>
+    <script src="https://telegram.org"></script>
+    <style>
+        :root {
+            --bg-color: var(--tg-theme-bg-color, #ffffff);
+            --text-color: var(--tg-theme-text-color, #222222);
+            --btn-color: var(--tg-theme-button-color, #2481cc);
+            --btn-text: var(--tg-theme-button-text-color, #ffffff);
+            --hint-color: var(--tg-theme-hint-color, #aaaaaa);
+        }
+
+        body {
+            font-family: sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+        }
+
+        .category-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0 10px 0;
+            color: var(--btn-color);
+        }
+
+        .product-card {
+            border: 1px solid var(--hint-color);
+            border-radius: 10px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .price {
+            color: var(--hint-color);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        button {
+            background-color: var(--btn-color);
+            color: var(--btn-text);
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-top: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--hint-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: var(--bg-color);
+            border-top: 1px solid var(--hint-color);
+        }
+
+        .checkout-btn {
+            width: 100%;
+            font-size: 16px;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+        }
+
+        #order-form {
+            display: none;
+            margin-top: 20px;
+            border-top: 2px dashed var(--hint-color);
+            padding-top: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="catalog-view">
+        <h2>🚗 Каталог автозапчастин</h2>
+
+        <div class="category-title">Розхідники для ТО</div>
+        <div class="product-card">
+            <div><b>Фільтр оливний</b>
+                <div class="price">320 грн.</div>
+            </div>
+            <button onclick="addToCart(1, 'Фільтр оливний', 320)">Купити</button>
+        </div>
+        <div class="product-card">
+            <div><b>Колодки гальмівні передні</b>
+                <div class="price">1 450 грн.</div>
+            </div>
+            <button onclick="addToCart(2, 'Колодки гальмівні передні', 1450)">Купити</button>
+        </div>
+
+        <div class="category-title">Автохімія та Оливи</div>
+        <div class="product-card">
+            <div><b>Моторна олива 5W-40 (4л)</b>
+                <div class="price">2 100 грн.</div>
+            </div>
+            <button onclick="addToCart(3, 'Моторна олива 5W-40 (4л)', 2100)">Купити</button>
+        </div>
+
+        <div style="height: 80px;"></div>
+        <div class="footer">
+            <button class="checkout-btn" id="cart-btn" onclick="showOrderForm()">Перейти до оформлення (0 грн.)</button>
+        </div>
+    </div>
+
+    <!-- Форма оформлення замовлення -->
+    <div id="order-form">
+        <h2>📦 Оформлення замовлення</h2>
+        <div class="form-group">
+            <label>Номер телефону:</label>
+            <input type="tel" id="user-phone" placeholder="+380">
+        </div>
+        <div class="form-group">
+            <label>Спосіб доставки:</label>
+            <select id="delivery-method">
+                <option value="Нова Пошта">Нова Пошта</option>
+                <option value="Укрпошта">Укрпошта</option>
+                <option value="Самовивіз">Самовивіз (Київ)</option>
+            </select>
+        </div>
+        <br>
+        <button class="checkout-btn" onclick="sendOrder()">Підтвердити замовлення</button>
+        <button style="background: grey; width: 100%; margin-top: 10px; padding: 10px;" onclick="hideOrderForm()">Назад
+            до каталогу</button>
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+
+        let cart = [];
+        let total = 0;
+
+        function addToCart(id, title, price) {
+            const item = cart.find(i => i.id === id);
+            if (item) { item.quantity++; } else { cart.push({ id, title, price, quantity: 1 }); }
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            document.getElementById('cart-btn').innerText = `Перейти до оформлення (${total} грн.)`;
+        }
+
+        function showOrderForm() {
+            if (cart.length === 0) return tg.showAlert("Кошик порожній!");
+            document.getElementById('catalog-view').style.display = 'none';
+            document.getElementById('order-form').style.display = 'block';
+        }
+
+        function hideOrderForm() {
+            document.getElementById('catalog-view').style.display = 'block';
+            document.getElementById('order-form').style.display = 'none';
+        }
+
+        async function sendOrder() {
+            const phone = document.getElementById('user-phone').value;
+            const delivery = document.getElementById('delivery-method').value;
+
+            if (!phone) return tg.showAlert("Будь ласка, введіть номер телефону!");
+
+            const user = tg.initDataUnsafe?.user;
+            const orderData = {
+                user_id: user?.id || 0,
+                user_name: user?.first_name || "Анонім",
+                phone: phone,
+                delivery: delivery,
+                items: cart,
+                total_price: total
+            };
+
+            // Сюди ми вставимо посилання, яке видасть Render.com
+            const BACKEND_URL = "https://onrender.com";
+
+            tg.showProgress();
+
+            try {
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+                tg.hideProgress();
+                if (response.ok) {
+                    tg.showAlert("Замовлення відправлено! Менеджер зв'яжеться з вами.");
+                    cart = []; calculateTotal(); tg.close();
+                } else { tg.showAlert("Помилка сервера."); }
+            } catch (error) {
+                tg.hideProgress();
+                tg.showAlert("Не вдалося зв'язатися з сервером.");
+            }
+        }
+    </script>
+</body>
+
+</html>
