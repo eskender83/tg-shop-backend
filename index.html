@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="uk">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,91 +13,30 @@
             --btn-text: var(--tg-theme-button-text-color, #ffffff);
             --hint-color: var(--tg-theme-hint-color, #aaaaaa);
         }
-
         body {
             font-family: sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            padding: 15px;
+            margin: 0; padding: 15px;
         }
-
-        .category-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 20px 0 10px 0;
-            color: var(--btn-color);
-        }
-
+        .category-title { font-size: 18px; font-weight: bold; margin: 20px 0 10px 0; color: var(--btn-color); }
         .product-card {
             border: 1px solid var(--hint-color);
-            border-radius: 10px;
-            padding: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+            border-radius: 10px; padding: 12px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
         }
-
-        .price {
-            color: var(--hint-color);
-            font-size: 14px;
-            margin-top: 4px;
-        }
-
+        .price { color: var(--hint-color); font-size: 14px; margin-top: 4px; }
         button {
-            background-color: var(--btn-color);
-            color: var(--btn-text);
-            border: none;
-            padding: 8px 14px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
+            background-color: var(--btn-color); color: var(--btn-text);
+            border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;
         }
-
-        .form-group {
-            margin-top: 15px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        input,
-        select {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid var(--hint-color);
-            background: var(--bg-color);
-            color: var(--text-color);
-        }
-
-        .footer {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            padding: 15px;
-            background: var(--bg-color);
-            border-top: 1px solid var(--hint-color);
-        }
-
-        .checkout-btn {
-            width: 100%;
-            font-size: 16px;
-            padding: 12px;
-            background-color: #28a745;
-            color: white;
-        }
-
-        #order-form {
-            display: none;
-            margin-top: 20px;
-            border-top: 2px dashed var(--hint-color);
-            padding-top: 15px;
-        }
+        .form-group { margin-top: 15px; display: flex; flex-direction: column; gap: 5px; }
+        input, select { padding: 10px; border-radius: 8px; border: 1px solid var(--hint-color); background: var(--bg-color); color: var(--text-color); }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; padding: 15px; background: var(--bg-color); border-top: 1px solid var(--hint-color); z-index: 10; }
+        .checkout-btn { width: 100%; font-size: 16px; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        #order-form { display: none; margin-top: 20px; border-top: 2px dashed var(--hint-color); padding-top: 15px; }
     </style>
 </head>
-
 <body>
 
     <div id="catalog-view">
@@ -106,27 +44,21 @@
 
         <div class="category-title">Розхідники для ТО</div>
         <div class="product-card">
-            <div><b>Фільтр оливний</b>
-                <div class="price">320 грн.</div>
-            </div>
+            <div><b>Фільтр оливний</b><div class="price">320 грн.</div></div>
             <button onclick="addToCart(1, 'Фільтр оливний', 320)">Купити</button>
         </div>
         <div class="product-card">
-            <div><b>Колодки гальмівні передні</b>
-                <div class="price">1 450 грн.</div>
-            </div>
+            <div><b>Колодки гальмівні передні</b><div class="price">1 450 грн.</div></div>
             <button onclick="addToCart(2, 'Колодки гальмівні передні', 1450)">Купити</button>
         </div>
 
         <div class="category-title">Автохімія та Оливи</div>
         <div class="product-card">
-            <div><b>Моторна олива 5W-40 (4л)</b>
-                <div class="price">2 100 грн.</div>
-            </div>
+            <div><b>Моторна олива 5W-40 (4л)</b><div class="price">2 100 грн.</div></div>
             <button onclick="addToCart(3, 'Моторна олива 5W-40 (4л)', 2100)">Купити</button>
         </div>
-
-        <div style="height: 80px;"></div>
+        
+        <div style="height: 100px;"></div>
         <div class="footer">
             <button class="checkout-btn" id="cart-btn" onclick="showOrderForm()">Перейти до оформлення (0 грн.)</button>
         </div>
@@ -149,8 +81,7 @@
         </div>
         <br>
         <button class="checkout-btn" onclick="sendOrder()">Підтвердити замовлення</button>
-        <button style="background: grey; width: 100%; margin-top: 10px; padding: 10px;" onclick="hideOrderForm()">Назад
-            до каталогу</button>
+        <button style="background: grey; width: 100%; margin-top: 10px; padding: 10px; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;" onclick="hideOrderForm()">Назад до каталогу</button>
     </div>
 
     <script>
@@ -162,8 +93,21 @@
 
         function addToCart(id, title, price) {
             const item = cart.find(i => i.id === id);
-            if (item) { item.quantity++; } else { cart.push({ id, title, price, quantity: 1 }); }
+            if (item) { 
+                item.quantity++; 
+            } else { 
+                cart.push({ id, title, price, quantity: 1 }); 
+            }
             calculateTotal();
+            
+            // 🌟 Візуальний відгук: показуємо сповіщення в додатку, що товар додано
+            if (tg.showScanQrPopup === undefined) {
+                // Перевірка для звичайного браузера, якщо тестуєте не з телефону
+                alert(`Додано: ${title}`);
+            } else {
+                tg.HapticFeedback.impactOccurred('light');
+                tg.showAlert(`✅ ${title} додано до кошика!`);
+            }
         }
 
         function calculateTotal() {
@@ -172,7 +116,10 @@
         }
 
         function showOrderForm() {
-            if (cart.length === 0) return tg.showAlert("Кошик порожній!");
+            if (cart.length === 0) {
+                tg.showAlert("Кошик порожній! Додайте товари кнопкою 'Купити'.");
+                return;
+            }
             document.getElementById('catalog-view').style.display = 'none';
             document.getElementById('order-form').style.display = 'block';
         }
@@ -198,8 +145,7 @@
                 total_price: total
             };
 
-            // Сюди ми вставимо посилання, яке видасть Render.com
-            const BACKEND_URL = "https://autoparts1-backend.onrender.com";
+            const BACKEND_URL = "https://onrender.com";
 
             tg.showProgress();
 
@@ -213,7 +159,9 @@
                 if (response.ok) {
                     tg.showAlert("Замовлення відправлено! Менеджер зв'яжеться з вами.");
                     cart = []; calculateTotal(); tg.close();
-                } else { tg.showAlert("Помилка сервера."); }
+                } else { 
+                    tg.showAlert("Помилка сервера. Перевірте статус Live на Render."); 
+                }
             } catch (error) {
                 tg.hideProgress();
                 tg.showAlert("Не вдалося зв'язатися з сервером.");
@@ -221,5 +169,4 @@
         }
     </script>
 </body>
-
 </html>
