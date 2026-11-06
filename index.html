@@ -7,11 +7,11 @@
     <script src="https://telegram.org"></script>
     <style>
         :root {
-            --bg-color: var(--tg-theme-bg-color, #ffffff);
-            --text-color: var(--tg-theme-text-color, #222222);
-            --btn-color: var(--tg-theme-button-color, #2481cc);
-            --btn-text: var(--tg-theme-button-text-color, #ffffff);
-            --hint-color: var(--tg-theme-hint-color, #aaaaaa);
+            --bg-color: #ffffff;
+            --text-color: #222222;
+            --btn-color: #2481cc;
+            --btn-text: #ffffff;
+            --hint-color: #aaaaaa;
         }
         body {
             font-family: sans-serif;
@@ -44,7 +44,7 @@
 
         <div class="category-title">Розхідники для ТО</div>
         <div class="product-card">
-            <div><b>Фільтр оливний</b><div class="price">500 грн.</div></div>
+            <div><b>Фільтр оливний</b><div class="price">320 грн.</div></div>
             <button onclick="addToCart(1, 'Фільтр оливний', 320)">Купити</button>
         </div>
         <div class="product-card">
@@ -85,38 +85,67 @@
     </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.expand();
+        // Безпечна ініціалізація Telegram SDK з захистом від збоїв
+        let tg = null;
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.expand();
+                
+                // Налаштовуємо кольори під тему Telegram, якщо вони доступні
+                if (tg.themeParams) {
+                    if (tg.themeParams.bg_color) document.documentElement.style.setProperty('--bg-color', tg.themeParams.bg_color);
+                    if (tg.themeParams.text_color) document.documentElement.style.setProperty('--text-color', tg.themeParams.text_color);
+                    if (tg.themeParams.button_color) document.documentElement.style.setProperty('--btn-color', tg.themeParams.button_color);
+                    if (tg.themeParams.button_text_color) document.documentElement.style.setProperty('--btn-text', tg.themeParams.button_text_color);
+                    if (tg.themeParams.hint_color) document.documentElement.style.setProperty('--hint-color', tg.themeParams.hint_color);
+                }
+            }
+        } catch (e) {
+            console.log("Telegram SDK не знайдено, працюємо у режимі браузера");
+        }
 
         let cart = [];
         let total = 0;
 
         function addToCart(id, title, price) {
+            console.log("Натиснуто кнопку Купити для:", title);
+            
             const item = cart.find(i => i.id === id);
             if (item) { 
                 item.quantity++; 
             } else { 
                 cart.push({ id: id, title: title, price: price, quantity: 1 }); 
             }
+            
+            // Перераховуємо суму
             calculateTotal();
             
-            // Завжди показуємо системне віконце Telegram про успішне додавання
-            tg.HapticFeedback.impactOccurred('light');
-            tg.showAlert(`✅ ${title} додано до кошика!`);
+            // Безпечний виклик сповіщень (працює і в ТГ, і в браузері)
+            if (tg && typeof tg.showAlert === 'function') {
+                try {
+                    tg.HapticFeedback.impactOccurred('light');
+                    tg.showAlert(`✅ ${title} додано до кошика!`);
+                } catch(e) {
+                    alert(`✅ ${title} додано до кошика!`);
+                }
+            } else {
+                alert(`✅ ${title} додано до кошика!`);
+            }
         }
 
         function calculateTotal() {
             total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-            document.getElementById('cart-btn').innerText = `Перейти до оформлення (${total} грн.)`;
+            const btn = document.getElementById('cart-btn');
+            if (btn) {
+                btn.innerText = `Перейти до оформлення (${total} грн.)`;
+            }
         }
-
-        document.addEventListener("DOMContentLoaded", function() {
-            calculateTotal();
-        });
 
         function showOrderForm() {
             if (cart.length === 0) {
-                tg.showAlert("Кошик порожній! Додайте товари кнопкою 'Купити'.");
+                if (tg) tg.showAlert("Кошик порожній! Додайте товари.");
+                else alert("Кошик порожній! Додайте товари.");
                 return;
             }
             document.getElementById('catalog-view').style.display = 'none';
@@ -133,23 +162,31 @@
             const delivery = document.getElementById('delivery-method').value;
 
             if (!phone) {
-                tg.showAlert("Будь ласка, введіть номер телефону!");
+                if (tg) tg.showAlert("Будь ласка, введіть номер телефону!");
+                else alert("Будь ласка, введіть номер телефону!");
                 return;
             }
 
-            const user = tg.initDataUnsafe?.user;
+            let userId = 0;
+            let userName = "Анонім";
+            
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                userId = tg.initDataUnsafe.user.id || 0;
+                userName = tg.initDataUnsafe.user.first_name || "Користувач";
+            }
+
             const orderData = {
-                user_id: user?.id || 0,
-                user_name: user?.first_name || "Анонім",
+                user_id: userId,
+                user_name: userName,
                 phone: phone,
                 delivery: delivery,
                 items: cart,
                 total_price: total
             };
 
-            const BACKEND_URL = "https://autoparts1-backend.onrender.com";
+            const BACKEND_URL = "https://onrender.com";
 
-            tg.showProgress();
+            if (tg) tg.showProgress();
 
             try {
                 const response = await fetch(BACKEND_URL, {
@@ -157,18 +194,26 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(orderData)
                 });
-                tg.hideProgress();
+                
+                if (tg) tg.hideProgress();
+                
                 if (response.ok) {
-                    tg.showAlert("Замовлення відправлено! Менеджер зв'яжеться з вами.");
+                    if (tg) {
+                        tg.showAlert("Замовлення відправлено! Менеджер зв'яжеться з вами.");
+                        tg.close();
+                    } else {
+                        alert("Замовлення відправлено!");
+                    }
                     cart = []; 
                     calculateTotal(); 
-                    tg.close();
                 } else { 
-                    tg.showAlert("Помилка сервера. Перевірте статус Live на Render."); 
+                    if (tg) tg.showAlert("Помилка сервера. Перевірте статус Live на Render."); 
+                    else alert("Помилка сервера.");
                 }
             } catch (error) {
-                tg.hideProgress();
-                tg.showAlert("Не вдалося зв'язатися з сервером.");
+                if (tg) tg.hideProgress();
+                if (tg) tg.showAlert("Не вдалося зв'язатися з сервером.");
+                else alert("Не вдалося зв'язатися з сервером.");
             }
         }
     </script>
