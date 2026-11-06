@@ -44,7 +44,7 @@
 
         <div class="category-title">Розхідники для ТО</div>
         <div class="product-card">
-            <div><b>Фільтр оливний</b><div class="price">380 грн.</div></div>
+            <div><b>Фільтр оливний</b><div class="price">500 грн.</div></div>
             <button onclick="addToCart(1, 'Фільтр оливний', 320)">Купити</button>
         </div>
         <div class="product-card">
@@ -96,24 +96,23 @@
             if (item) { 
                 item.quantity++; 
             } else { 
-                cart.push({ id, title, price, quantity: 1 }); 
+                cart.push({ id: id, title: title, price: price, quantity: 1 }); 
             }
             calculateTotal();
             
-            // 🌟 Візуальний відгук: показуємо сповіщення в додатку, що товар додано
-            if (tg.showScanQrPopup === undefined) {
-                // Перевірка для звичайного браузера, якщо тестуєте не з телефону
-                alert(`Додано: ${title}`);
-            } else {
-                tg.HapticFeedback.impactOccurred('light');
-                tg.showAlert(`✅ ${title} додано до кошика!`);
-            }
+            // Завжди показуємо системне віконце Telegram про успішне додавання
+            tg.HapticFeedback.impactOccurred('light');
+            tg.showAlert(`✅ ${title} додано до кошика!`);
         }
 
         function calculateTotal() {
             total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             document.getElementById('cart-btn').innerText = `Перейти до оформлення (${total} грн.)`;
         }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            calculateTotal();
+        });
 
         function showOrderForm() {
             if (cart.length === 0) {
@@ -133,7 +132,10 @@
             const phone = document.getElementById('user-phone').value;
             const delivery = document.getElementById('delivery-method').value;
 
-            if (!phone) return tg.showAlert("Будь ласка, введіть номер телефону!");
+            if (!phone) {
+                tg.showAlert("Будь ласка, введіть номер телефону!");
+                return;
+            }
 
             const user = tg.initDataUnsafe?.user;
             const orderData = {
@@ -145,7 +147,7 @@
                 total_price: total
             };
 
-            const BACKEND_URL = "https://autoparts1-backend.onrender.com";
+            const BACKEND_URL = "https://onrender.com";
 
             tg.showProgress();
 
@@ -158,7 +160,9 @@
                 tg.hideProgress();
                 if (response.ok) {
                     tg.showAlert("Замовлення відправлено! Менеджер зв'яжеться з вами.");
-                    cart = []; calculateTotal(); tg.close();
+                    cart = []; 
+                    calculateTotal(); 
+                    tg.close();
                 } else { 
                     tg.showAlert("Помилка сервера. Перевірте статус Live на Render."); 
                 }
