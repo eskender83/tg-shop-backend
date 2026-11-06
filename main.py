@@ -9,11 +9,11 @@ from aiogram.types import WebAppInfo
 import uvicorn
 
 # ⚠️ ВСТАВТЕ СВІЙ ТОКЕН СЮДИ
-BOT_TOKEN = "ВАШ_ТОКЕН_БОТА"
+BOT_TOKEN = "9204557694:AAFje8UHcRT9Wym_Czuj53drhIJH8pWejSs"
 # Цю посилання ми замінимо пізніше, після завантаження на GitHub Pages
 WEBAPP_URL = "https://placeholder.com"
 
-bot = Bot(token=BOT_TOKEN)
+bot = Bot(9204557694:AAFje8UHcRT9Wym_Czuj53drhIJH8pWejSs)
 dp = Dispatcher()
 app = FastAPI()
 
