@@ -85,14 +85,12 @@
     </div>
 
     <script>
-        // Безпечна ініціалізація Telegram SDK з захистом від збоїв
         let tg = null;
         try {
             if (window.Telegram && window.Telegram.WebApp) {
                 tg = window.Telegram.WebApp;
                 tg.expand();
                 
-                // Налаштовуємо кольори під тему Telegram, якщо вони доступні
                 if (tg.themeParams) {
                     if (tg.themeParams.bg_color) document.documentElement.style.setProperty('--bg-color', tg.themeParams.bg_color);
                     if (tg.themeParams.text_color) document.documentElement.style.setProperty('--text-color', tg.themeParams.text_color);
@@ -102,26 +100,21 @@
                 }
             }
         } catch (e) {
-            console.log("Telegram SDK не знайдено, працюємо у режимі браузера");
+            console.log("Режим звичайного браузера");
         }
 
         let cart = [];
         let total = 0;
 
         function addToCart(id, title, price) {
-            console.log("Натиснуто кнопку Купити для:", title);
-            
             const item = cart.find(i => i.id === id);
             if (item) { 
                 item.quantity++; 
             } else { 
                 cart.push({ id: id, title: title, price: price, quantity: 1 }); 
             }
-            
-            // Перераховуємо суму
             calculateTotal();
             
-            // Безпечний виклик сповіщень (працює і в ТГ, і в браузері)
             if (tg && typeof tg.showAlert === 'function') {
                 try {
                     tg.HapticFeedback.impactOccurred('light');
@@ -184,7 +177,7 @@
                 total_price: total
             };
 
-            const BACKEND_URL = "https://autoparts1-backend.onrender.com";
+            const BACKEND_URL = "https://autoparts-backend-1-du55.onrender.com";
 
             if (tg) tg.showProgress();
 
@@ -199,21 +192,22 @@
                 
                 if (response.ok) {
                     if (tg) {
-                        tg.showAlert("Замовлення відправлено! Менеджер зв'яжеться з вами.");
+                        tg.showAlert("🎉 Замовлення успішно відправлено!");
                         tg.close();
                     } else {
-                        alert("Замовлення відправлено!");
+                        alert("🎉 Замовлення успішно відправлено!");
                     }
                     cart = []; 
                     calculateTotal(); 
                 } else { 
-                    if (tg) tg.showAlert("Помилка сервера. Перевірте статус Live на Render."); 
-                    else alert("Помилка сервера.");
+                    const errorText = await response.text();
+                    if (tg) tg.showAlert(`❌ Помилка сервера (Код: ${response.status})\nТекст: ${errorText}`); 
+                    else alert(`❌ Помилка сервера (Код: ${response.status})\nТекст: ${errorText}`);
                 }
             } catch (error) {
                 if (tg) tg.hideProgress();
-                if (tg) tg.showAlert("Не вдалося зв'язатися з сервером.");
-                else alert("Не вдалося зв'язатися з сервером.");
+                if (tg) tg.showAlert(`🚨 Збій з'єднання: ${error.message}`);
+                else alert(`🚨 Збій з'єднання: ${error.message}`);
             }
         }
     </script>
