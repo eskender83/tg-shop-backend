@@ -74,7 +74,7 @@
         </div>
         <div class="form-group">
             <label>VIN-код автомобіля (17 символів):</label>
-            <input type="text" id="user-vin" placeholder="JMX1234567890XXXX" maxlength="17" style="text-transform: uppercase;">
+            <input type="text" id="user-vin" placeholder="XTA1234567890XXXX" maxlength="17" style="text-transform: uppercase;">
         </div>
         <div class="form-group">
             <label>Спосіб доставки:</label>
@@ -90,11 +90,14 @@
     </div>
 
     <script>
-        // Ініціалізація головного об'єкта Telegram
-        const tg = window.Telegram?.WebApp;
-        if (tg) {
-            tg.ready();
-            tg.expand();
+        let tg = null;
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.expand();
+            }
+        } catch (e) {
+            console.log("Режим звичайного браузера");
         }
 
         let cart = [];
@@ -110,8 +113,12 @@
             calculateTotal();
             
             if (tg && typeof tg.showAlert === 'function') {
-                tg.HapticFeedback.impactOccurred('light');
-                tg.showAlert(`✅ ${title} додано до кошика!`);
+                try {
+                    tg.HapticFeedback.impactOccurred('light');
+                    tg.showAlert(`✅ ${title} додано до кошика!`);
+                } catch(e) {
+                    alert(`✅ ${title} додано до кошика!`);
+                }
             } else {
                 alert(`✅ ${title} додано до кошика!`);
             }
@@ -157,16 +164,12 @@
                 return;
             }
 
-            // 🎯 Гарантоване зчитування профілю безпосередньо з Telegram WebApp на мить відправки
             let userId = 0;
             let userName = "Анонім";
             
-            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
-                const tgData = window.Telegram.WebApp.initDataUnsafe;
-                if (tgData.user) {
-                    userId = tgData.user.id || 0;
-                    userName = tgData.user.first_name || "Користувач";
-                }
+            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                userId = tg.initDataUnsafe.user.id || 0;
+                userName = tg.initDataUnsafe.user.first_name || "Користувач";
             }
 
             const orderData = {
@@ -179,9 +182,7 @@
                 total_price: total
             };
 
-            // ⚠️ Звірте назву вашого сервера з посиланням у вашій панелі Render!
-            // Якщо у посиланні є хвостик на кшталт "-du55", допишіть його сюди.
-            const BACKEND_URL = "https://autoparts-backend-1-du55.onrender.com//api/order";
+            const BACKEND_URL = "https://onrender.com";
 
             if (tg) tg.showProgress();
 
@@ -199,7 +200,7 @@
                         tg.showAlert("🎉 Замовлення успішно відправлено!");
                         tg.close();
                     } else {
-                        alert("🎉 Замовлення успішно відправлено!");
+                        alert("🎉 Замовлення успешно відправлено!");
                     }
                     cart = []; 
                     calculateTotal(); 
