@@ -90,14 +90,11 @@
     </div>
 
     <script>
-        let tg = null;
-        try {
-            if (window.Telegram && window.Telegram.WebApp) {
-                tg = window.Telegram.WebApp;
-                tg.expand();
-            }
-        } catch (e) {
-            console.log("Режим звичайного браузера");
+        // Ініціалізація головного об'єкта Telegram
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
         }
 
         let cart = [];
@@ -113,12 +110,8 @@
             calculateTotal();
             
             if (tg && typeof tg.showAlert === 'function') {
-                try {
-                    tg.HapticFeedback.impactOccurred('light');
-                    tg.showAlert(`✅ ${title} додано до кошика!`);
-                } catch(e) {
-                    alert(`✅ ${title} додано до кошика!`);
-                }
+                tg.HapticFeedback.impactOccurred('light');
+                tg.showAlert(`✅ ${title} додано до кошика!`);
             } else {
                 alert(`✅ ${title} додано до кошика!`);
             }
@@ -164,12 +157,16 @@
                 return;
             }
 
+            // 🎯 Гарантоване зчитування профілю безпосередньо з Telegram WebApp на мить відправки
             let userId = 0;
             let userName = "Анонім";
             
-            if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                userId = tg.initDataUnsafe.user.id || 0;
-                userName = tg.initDataUnsafe.user.first_name || "Користувач";
+            if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+                const tgData = window.Telegram.WebApp.initDataUnsafe;
+                if (tgData.user) {
+                    userId = tgData.user.id || 0;
+                    userName = tgData.user.first_name || "Користувач";
+                }
             }
 
             const orderData = {
@@ -182,7 +179,9 @@
                 total_price: total
             };
 
-            const BACKEND_URL = "https://autoparts-backend-1-du55.onrender.com/api/order";
+            // ⚠️ Звірте назву вашого сервера з посиланням у вашій панелі Render!
+            // Якщо у посиланні є хвостик на кшталт "-du55", допишіть його сюди.
+            const BACKEND_URL = "https://onrender.com";
 
             if (tg) tg.showProgress();
 
@@ -200,7 +199,7 @@
                         tg.showAlert("🎉 Замовлення успішно відправлено!");
                         tg.close();
                     } else {
-                        alert("🎉 Замовлення успешно відправлено!");
+                        alert("🎉 Замовлення успішно відправлено!");
                     }
                     cart = []; 
                     calculateTotal(); 
