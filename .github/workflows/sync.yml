@@ -1,0 +1,46 @@
+name: Sync Google Sheets to JSON
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Автоматический запуск каждый час
+  workflow_dispatch: # Позволяет запускать вручную кнопкой
+
+jobs:
+  update-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Google Sheet Data and Convert to JSON
+        run: |
+          # ЗАМЕНИТЕ ТЕКСТ ниже на ваш ID таблицы из Шага 2:
+          SPREADSHEET_ID="ВСТАВЬТЕ_СЮДА_ID_ВАШЕЙ_ТАБЛИЦЫ"
+          
+          # Скачиваем таблицу в формате CSV напрямую из Google
+          curl -L -o data.csv "https://google.com{SPREADSHEET_ID}/export?format=csv"
+          
+          # Превращаем CSV в красивый JSON с помощью встроенного Python
+          python3 -c "
+          import csv, json
+          with open('data.csv', mode='r', encoding='utf-8') as f:
+              reader = csv.DictReader(f)
+              rows = list(reader)
+          with open('data.json', mode='w', encoding='utf-8') as f:
+              json.dump(rows, f, indent=2, ensure_ascii=False)
+          "
+          # Удаляем временный CSV файл
+          rm data.csv
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@://github.com"
+          git add data.json
+          # Проверяем, изменились ли данные, чтобы не делать пустые коммиты
+          if git diff --staged --quiet; then
+            echo "Данные не изменились. Пропускаем."
+          else
+            git commit -m "Автоматическое обновление данных из Google Sheets"
+            git push
+          fi
