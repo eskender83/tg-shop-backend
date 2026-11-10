@@ -18,9 +18,9 @@ jobs:
           import urllib.request, csv, json
           
           # 1. ВСТАВТЕ ВАШ ID ТАБЛИЦІ МІЖ ЛАПКАМИ НИЖЧЕ:
-          spreadsheet_id = '/1t1NOAZT8v7qexOfyhH9vFe97kmXSZGPsEO7tv3t-Wio'
+          spreadsheet_id = '1t1NOAZT8v7qexOfyhH9vFe97kmXSZGPsEO7tv3t-Wio'
           
-          url = f'https://docs.google.com{spreadsheet_id}/export?format=csv'
+          url = f'https://docs.google.com/{spreadsheet_id}/export?format=csv'
           
           try:
               # Завантажуємо дані через Python
