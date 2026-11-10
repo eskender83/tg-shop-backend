@@ -20,7 +20,8 @@ jobs:
           # 1. ВСТАВТЕ ВАШ ID ТАБЛИЦІ МІЖ ЛАПКАМИ НИЖЧЕ:
           spreadsheet_id = '1QfRy72cfeW0YTJPLPtWo7fsUg93GrYrBUf38KLc6TVE'
           
-          url = f'https://google.com{spreadsheet_id}/export?format=csv'
+          url = f'https://docs.google.com/spreadsheets/d/{spreadsheet_id}/export?format=csv'
+
 
           
           try:
