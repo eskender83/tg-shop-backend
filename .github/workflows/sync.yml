@@ -15,7 +15,7 @@ jobs:
       - name: Fetch Google Sheet Data and Convert to JSON
         run: |
           # ВСТАВТЕ ВАШ ID ТАБЛИЦІ МІЖ ЛАПКАМИ НИЖЧЕ:
-          SPREADSHEET_ID="/1t1NOAZT8v7qexOfyhH9vFe97kmXSZGPsEO7tv3t-Wio/"
+          SPREADSHEET_ID="1t1NOAZT8v7qexOfyhH9vFe97kmXSZGPsEO7tv3t-Wio"
           
           # Завантажуємо CSV напрямую
           curl -L -o data.csv "https://google.com{SPREADSHEET_ID}/export?format=csv"
